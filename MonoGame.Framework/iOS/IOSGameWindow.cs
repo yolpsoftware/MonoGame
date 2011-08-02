@@ -171,8 +171,9 @@ namespace Microsoft.Xna.Framework
 					renderbufferHeight = height;
 				}
 		    } 
-			catch (Exception) 
+			catch (Exception ex) 
 			{
+				Console.WriteLine(ex);
 		        // device doesn't support OpenGLES 2.0; retry with 1.1:
 		        ContextRenderingApi = EAGLRenderingAPI.OpenGLES1;
 				base.CreateFrameBuffer();
