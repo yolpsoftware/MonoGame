@@ -59,6 +59,58 @@ using MonoTouch.CoreGraphics;
 
 namespace Microsoft.Xna.Framework
 {
+	internal class GameVc : UIViewController
+	{
+		Game Game;
+		public GameVc(Game game):base()
+		{
+			Game = game;
+			this.View = game._view;
+		}
+		public override bool ShouldAutorotateToInterfaceOrientation (UIInterfaceOrientation toInterfaceOrientation)
+		{
+		
+			var manager = Game.graphicsDeviceManager as GraphicsDeviceManager;
+			Console.WriteLine(manager == null);
+			if(manager == null)
+				return true;
+			DisplayOrientation supportedOrientations = manager.SupportedOrientations;
+			switch(toInterfaceOrientation)
+			{
+			case UIInterfaceOrientation.LandscapeLeft :
+				return (supportedOrientations & DisplayOrientation.LandscapeLeft) != 0;
+			case UIInterfaceOrientation.LandscapeRight:
+				return (supportedOrientations & DisplayOrientation.LandscapeRight) != 0;
+			case UIInterfaceOrientation.Portrait:
+				return (supportedOrientations & DisplayOrientation.Portrait) != 0;
+			case UIInterfaceOrientation.PortraitUpsideDown :
+				return (supportedOrientations & DisplayOrientation.PortraitUpsideDown) != 0;
+			default :
+				return false;
+			}
+			return true;
+			//return base.ShouldAutorotateToInterfaceOrientation (toInterfaceOrientation);
+		}
+		public override void DidRotate (UIInterfaceOrientation fromInterfaceOrientation)
+		{
+			/*
+			switch(this.InterfaceOrientation)
+			{
+			case UIInterfaceOrientation.LandscapeLeft:
+			case UIInterfaceOrientation.LandscapeRight:
+				Game.View.Frame = new System.Drawing.RectangleF(this.View.Frame.Location,new System.Drawing.SizeF(this.View.Frame.Height,this.View.Frame.Width));
+				break;
+			default:				
+				Game.View.Frame = new System.Drawing.RectangleF(this.View.Frame.Location,new System.Drawing.SizeF(this.View.Frame.Width,this.View.Frame.Height));
+				break;
+			}
+			//Game.View.Frame = this.View.Frame;
+			Console.WriteLine("Main View's Frame:" + Game.View.Frame);
+			*/
+			base.DidRotate (fromInterfaceOrientation);
+		}
+	}
+	
     public class Game : IDisposable
     {
 		private const float FramesPerSecond = 60.0f; // ~60 frames per second
@@ -73,6 +125,7 @@ namespace Microsoft.Xna.Framework
         public GameServiceContainer _services;
         private ContentManager _content;
         internal GameWindow _view;
+		private GameVc gameVc;
 		private bool _isFixedTimeStep = true;
         private TimeSpan _targetElapsedTime = TimeSpan.FromSeconds(1 / FramesPerSecond); 
         
@@ -95,8 +148,10 @@ namespace Microsoft.Xna.Framework
 			//Create a full-screen window
 			_mainWindow = new UIWindow (UIScreen.MainScreen.Bounds);			
 			_view = new GameWindow();
-			GameWindow.game = this;			
-			_mainWindow.Add(_view);							
+			GameWindow.game = this;		
+			
+			gameVc = new GameVc(this);
+			_mainWindow.Add(gameVc.View);							
 					
 			// Initialize GameTime
             _updateGameTime = new GameTime();

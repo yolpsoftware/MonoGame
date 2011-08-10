@@ -104,6 +104,7 @@ namespace Microsoft.Xna.Framework
 
 		public GameWindow() : base (UIScreen.MainScreen.Bounds)
 		{
+			AutoResize = true;
 			LayerRetainsBacking = false; 
 			LayerColorFormat	= EAGLColorFormat.RGBA8;
 			ContentScaleFactor  = UIScreen.MainScreen.Scale;

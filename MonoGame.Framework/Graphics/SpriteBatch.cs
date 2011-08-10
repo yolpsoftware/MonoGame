@@ -99,25 +99,28 @@ namespace Microsoft.Xna.Framework.Graphics
 			GL.LoadIdentity();							
 			
 			// Switch on the flags.
-	        switch (this.graphicsDevice.PresentationParameters.DisplayOrientation)
+	      switch (this.graphicsDevice.PresentationParameters.DisplayOrientation)
 	        {
 				case DisplayOrientation.LandscapeLeft:
                 {
-					GL.Rotate(-90, 0, 0, 1); 
+					//GL.Rotate(-90, 0, 0, 1); 
+					//Console.WriteLine(this.graphicsDevice.Viewport.Height + ","  + this.graphicsDevice.Viewport.Width);
 					GL.Ortho(0, this.graphicsDevice.Viewport.Height, this.graphicsDevice.Viewport.Width,  0, -1, 1);
 					break;
 				}
 				
 				case DisplayOrientation.LandscapeRight:
                 {
-					GL.Rotate(90, 0, 0, 1); 
+					//GL.Rotate(90, 0, 0, 1); 
+					//Console.WriteLine(this.graphicsDevice.Viewport.Height + ","  + this.graphicsDevice.Viewport.Width);
 					GL.Ortho(0, this.graphicsDevice.Viewport.Height, this.graphicsDevice.Viewport.Width,  0, -1, 1);
 					break;
 				}
 				
 			case DisplayOrientation.PortraitUpsideDown:
                 {
-					GL.Rotate(180, 0, 0, 1); 
+					//GL.Rotate(180, 0, 0, 1); 
+					//Console.WriteLine(this.graphicsDevice.Viewport.Width + ","  + this.graphicsDevice.Viewport.Height);
 					GL.Ortho(0, this.graphicsDevice.Viewport.Width, this.graphicsDevice.Viewport.Height,  0, -1, 1);
 					break;
 				}
@@ -127,7 +130,9 @@ namespace Microsoft.Xna.Framework.Graphics
 					GL.Ortho(0, this.graphicsDevice.Viewport.Width, this.graphicsDevice.Viewport.Height, 0, -1, 1);
 					break;
 				}
-			}			
+			}		
+			
+			
 			
 			// Enable Scissor Tests if necessary
 			if ( this.graphicsDevice.RasterizerState.ScissorTestEnable )
@@ -137,7 +142,20 @@ namespace Microsoft.Xna.Framework.Graphics
 			
 			GL.MatrixMode(All.Modelview);			
 			
-			GL.Viewport(0, 0, this.graphicsDevice.Viewport.Width, this.graphicsDevice.Viewport.Height);
+			if(!Util.CanUseGameCenter)
+				switch (this.graphicsDevice.PresentationParameters.DisplayOrientation)
+				{
+					case DisplayOrientation.LandscapeLeft:
+					case DisplayOrientation.LandscapeRight:
+						GL.Viewport(0, 0, this.graphicsDevice.Viewport.Height, this.graphicsDevice.Viewport.Width);	
+						break;
+					default:
+						GL.Viewport(0, 0, this.graphicsDevice.Viewport.Width, this.graphicsDevice.Viewport.Height);	
+						break;
+					
+				}
+			else
+				GL.Viewport(0, 0, this.graphicsDevice.Viewport.Width, this.graphicsDevice.Viewport.Height);
 			
 			// Enable Scissor Tests if necessary
 			if ( this.graphicsDevice.RasterizerState.ScissorTestEnable )
