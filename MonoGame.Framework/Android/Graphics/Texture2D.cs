@@ -112,9 +112,58 @@ namespace Microsoft.Xna.Framework.Graphics
 		
 		public Texture2D(GraphicsDevice graphicsDevice, int width, int height, bool mipMap, SurfaceFormat format)
 		{
-			this.graphicsDevice = graphicsDevice;
-			
-			// This is needed in OpenGL ES 1.1 as it only supports power of 2 textures
+            this.graphicsDevice = graphicsDevice;
+
+            this._format = format;
+            this._mipmap = mipMap;
+
+#if IPHONE
+            if (GraphicsDevice.OpenGLESVersion == MonoTouch.OpenGLES.EAGLRenderingAPI.OpenGLES2)
+            {
+                texture = new ESImage(width, height);
+            }
+            else
+            {
+            	// This is needed in OpenGL ES 1.1 as it only supports power of 2 textures
+                int xTexSize = 1;
+                int yTexSize = 1;
+                while (width > xTexSize && height > yTexSize)
+                {
+                    if (width > xTexSize) xTexSize *= 2;
+                    if (height > yTexSize) yTexSize *= 2;
+                }
+
+                this._width = xTexSize;
+                this._height = yTexSize;
+
+			    generateOpenGLTexture();
+            }
+#elif ANDROID
+            if (GraphicsDevice.OpenGLESVersion == OpenTK.Graphics.GLContextVersion.Gles2_0)
+            {
+                this._width = width;
+                this._height = height;
+
+                texture = new ESImage(width, height);
+            }
+            else
+            {
+                // This is needed in OpenGL ES 1.1 as it only supports power of 2 textures
+                int xTexSize = 1;
+                int yTexSize = 1;
+                while (width > xTexSize && height > yTexSize)
+                {
+                    if (width > xTexSize) xTexSize *= 2;
+                    if (height > yTexSize) yTexSize *= 2;
+                }
+
+                this._width = xTexSize;
+                this._height = yTexSize;
+
+                generateOpenGLTexture();
+            }
+#else
+            // This is needed in OpenGL ES 1.1 as it only supports power of 2 textures
             int xTexSize = 1;
             int yTexSize = 1;
             while (width > xTexSize && height > yTexSize)
@@ -125,22 +174,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
             this._width = xTexSize;
             this._height = yTexSize;
-			
-			this._format = format;
-			this._mipmap = mipMap;
 
-#if IPHONE
-            if (GraphicsDevice.OpenGLESVersion == MonoTouch.OpenGLES.EAGLRenderingAPI.OpenGLES2)
-                texture = new ESImage(width, height);
-            else
-			    generateOpenGLTexture();
-#elif ANDROID
-            if (GraphicsDevice.OpenGLESVersion == OpenTK.Graphics.GLContextVersion.Gles2_0)
-                texture = new ESImage(width, height);
-            else
-                generateOpenGLTexture();
-#else
-            	    generateOpenGLTexture();
+            generateOpenGLTexture();
 #endif
         }
 		

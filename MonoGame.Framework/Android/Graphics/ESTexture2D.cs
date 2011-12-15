@@ -79,58 +79,69 @@ namespace Microsoft.Xna.Framework.Graphics
         {
             //TODO:  Android.Opengl.GLUtils.GetInternalFormat()
 
-            _format = SurfaceFormat.Color;
-            if (imageSource.HasAlpha)
-                _format = SurfaceFormat.Color;
-
             if (GraphicsDevice.OpenGLESVersion == OpenTK.Graphics.GLContextVersion.Gles2_0)
             {
+                _format = SurfaceFormat.Color;
+                if (imageSource.HasAlpha)
+                    _format = SurfaceFormat.Color;
+
                 _width = imageSource.Width;
                 _height = imageSource.Height;
+
+                _size.Width = _width;
+                _size.Height = _height;
+
+                GL20.GenTextures(1, ref _name);
+                int test = Android.Opengl.GLES20.GlGetError();
+                GL20.BindTexture(ALL20.Texture2D, _name);
+                //test = Android.Opengl.GLES20.GlGetError();
+                GL20.TexParameter(ALL20.Texture2D, ALL20.TextureMinFilter, (int)filter);
+                //test = Android.Opengl.GLES20.GlGetError();
+                GL20.TexParameter(ALL20.Texture2D, ALL20.TextureMagFilter, (int)filter);
+                //test = Android.Opengl.GLES20.GlGetError();
+                GL20.TexParameter(ALL20.Texture2D, ALL20.TextureWrapS, (int)ALL20.ClampToEdge);
+                //test = Android.Opengl.GLES20.GlGetError();
+                GL20.TexParameter(ALL20.Texture2D, ALL20.TextureWrapT, (int)ALL20.ClampToEdge);
+                //test = Android.Opengl.GLES20.GlGetError();
+                Android.Opengl.GLUtils.TexImage2D((int)ALL20.Texture2D, 0, imageSource, 0);
+                //test = Android.Opengl.GLES20.GlGetError();
+
+                // free bitmap
+                imageSource.Recycle();
+
+                // error checking
+                int errAndroidGL = Android.Opengl.GLES20.GlGetError();
+                ALL20 errGenericGL = GL20.GetError();
+                if (errAndroidGL != Android.Opengl.GLES20.GlNoError || errGenericGL != ALL20.NoError)
+                    Console.WriteLine(string.Format("OpenGL ES 2.0:\n\tAndroid error: {0,10:X}\n\tGeneric error: {1, 10:X}", errAndroidGL, errGenericGL));
             }
             else
             {
+                _format = SurfaceFormat.Color;
+                if (imageSource.HasAlpha)
+                    _format = SurfaceFormat.Color;
+
                 // scale up bitmap to be power of 2 dimensions but dont exceed 1024x1024.
                 // Note: may not have to do this with OpenGL 2+
                 _width = (int)Math.Pow(2, Math.Min(10, Math.Ceiling(Math.Log10(imageSource.Width) / Math.Log10(2))));
                 _height = (int)Math.Pow(2, Math.Min(10, Math.Ceiling(Math.Log10(imageSource.Height) / Math.Log10(2))));
-            }
 
-            _size.Width = _width;
-            _size.Height = _height;
+                _size.Width = _width;
+                _size.Height = _height;
 
-            using (Bitmap imagePadded = Bitmap.CreateBitmap(_width, _height, Bitmap.Config.Argb8888))
-            {
-                Canvas can = new Canvas(imagePadded);
-                can.DrawARGB(0, 0, 0, 0);
-                can.DrawBitmap(imageSource, 0, 0, null);
-                if (GraphicsDevice.OpenGLESVersion == OpenTK.Graphics.GLContextVersion.Gles2_0)
+                using (Bitmap imagePadded = Bitmap.CreateBitmap(_width, _height, Bitmap.Config.Argb8888))
                 {
+                    Canvas can = new Canvas(imagePadded);
+                    can.DrawARGB(0, 0, 0, 0);
+                    can.DrawBitmap(imageSource, 0, 0, null);
+
                     GL11.GenTextures(1, ref _name);
                     GL11.BindTexture(ALL11.Texture2D, _name);
                     GL11.TexParameter(ALL11.Texture2D, ALL11.TextureMinFilter, (int)filter);
                     GL11.TexParameter(ALL11.Texture2D, ALL11.TextureMagFilter, (int)filter);
                     Android.Opengl.GLUtils.TexImage2D((int)ALL11.Texture2D, 0, imagePadded, 0);
-
-                    // free bitmap
-                    imageSource.Recycle();
-
-                    // error checking
-                    int errAndroidGL = Android.Opengl.GLES20.GlGetError();
-                    ALL20 errGenericGL = GL20.GetError();
-                    if (errAndroidGL != Android.Opengl.GLES20.GlNoError || errGenericGL != ALL20.NoError)
-                        Console.WriteLine(string.Format("OpenGL ES 2.0:\n\tAndroid error: {0,10:X}\n\tGeneric error: {1, 10:X}", errAndroidGL, errGenericGL));
-                }
-                else
-                {
-                    GL20.GenTextures(1, ref _name);
-                    GL20.BindTexture(ALL20.Texture2D, _name);
-                    GL20.TexParameter(ALL20.Texture2D, ALL20.TextureMinFilter, (int)filter);
-                    GL20.TexParameter(ALL20.Texture2D, ALL20.TextureMagFilter, (int)filter);
-                    Android.Opengl.GLUtils.TexImage2D((int)ALL20.Texture2D, 0, imagePadded, 0);
                 }
             }
-
             _maxS = _size.Width / (float)_width;
             _maxT = _size.Height / (float)_height;
         }

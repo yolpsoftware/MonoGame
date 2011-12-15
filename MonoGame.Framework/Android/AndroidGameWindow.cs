@@ -139,6 +139,7 @@ namespace Microsoft.Xna.Framework
                 GLContextVersion = GLContextVersion.Gles2_0;
                 GraphicsDevice.OpenGLESVersion = GLContextVersion;
                 base.CreateFrameBuffer();
+                OpenTK.Graphics.ES20.GL.GetInteger(OpenTK.Graphics.ES20.All.FramebufferBinding, ref GraphicsDevice.FrameBufferScreen);
 		    } 
 			catch (Exception) 
 			{
