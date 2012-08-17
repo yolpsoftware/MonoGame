@@ -74,12 +74,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		{
 		}
 		
-		internal TouchCollection(IEnumerable<TouchLocation> locations)	: base (locations)
+		public TouchCollection(IEnumerable<TouchLocation> locations)	: base (locations)
 		{
 			
 		}
 		
-		internal void Update()
+		public void Update()
 		{
 			//Console.WriteLine(">>> Touches: {0}", Count);
 			for (int i = this.Count - 1; i >= 0; --i)
@@ -117,7 +117,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			return false;
 		}
 
-		internal int FindIndexById(int id, out TouchLocation touchLocation)
+		public int FindIndexById(int id, out TouchLocation touchLocation)
 		{
 			for (int i = 0; i < this.Count; i++)
 			{
@@ -132,7 +132,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			return -1;
 		}
 
-		internal void Add(int id, Vector2 position) {
+		public void Add(int id, Vector2 position) {
 			for (int i = 0; i < Count; i++) {
 				if (this[i].Id == id) {
 #if DEBUG
@@ -144,7 +144,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			Add(new TouchLocation(id, TouchLocationState.Pressed, position));
 		}
 
-		internal void Update(int id, TouchLocationState state, Vector2 position)
+		public void Update(int id, TouchLocationState state, Vector2 position)
 		{
 			if (state == TouchLocationState.Pressed)
 				throw new ArgumentException("Argument 'state' cannot be TouchLocationState.Pressed.");
