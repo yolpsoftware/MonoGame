@@ -353,9 +353,13 @@ namespace Microsoft.Xna.Framework {
 
 		private void AssertValidContext ()
 		{
-			if (_graphicsContext == null)
-				throw new InvalidOperationException (
-					"GraphicsContext must be created for this operation to succeed.");
+			if (_graphicsContext == null) {
+				CreateContext();
+				if (_graphicsContext == null) {
+					throw new InvalidOperationException (
+						"GraphicsContext must be created for this operation to succeed.");
+				}
+			}
 		}
 	}
 }
